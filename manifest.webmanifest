@@ -1,0 +1,16 @@
+{
+  "name": "Réserves de chantier",
+  "short_name": "Réserves",
+  "description": "Relevé des réserves de chantier : photos, constats dictés et cahier de retouches en PDF.",
+  "lang": "fr-CH",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14181B",
+  "theme_color": "#F5B700",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
