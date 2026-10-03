@@ -143,6 +143,10 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
 .help[aria-expanded="true"]{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
 .tip{background:var(--field);border-left:3px solid var(--signal);border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:.93rem}
 .tip p{margin:0 0 6px}.tip p:last-child{margin:0}
+.info h3{margin-top:22px;margin-bottom:6px}
+.info p,.info li{font-size:.95rem}
+.info ul{padding-left:1.2em;margin:6px 0}
+.info li{margin-bottom:6px}
 .guide ol{padding-left:1.3em;margin:10px 0 0}.guide li{margin-bottom:12px}
 .btn-round{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:transparent;font-weight:700;font-size:1.1rem}
 .annot-stage{padding:12px 16px 0;display:flex;justify-content:center}
@@ -191,7 +195,7 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
     <h1><span id="pTitle">Visite sans nom</span> <span class="caret" aria-hidden="true">▾</span></h1>
     <p id="pSub">Renseigne le projet dans « Visite »</p>
   </button>
-  <button class="btn-round" id="openGuide" aria-label="Mode d'emploi">?</button>
+  <button class="btn-round" id="openGuide" aria-label="Mode d'emploi et données">?</button>
   <button class="btn-ghost" id="openVisit">Visite</button>
 </header>
 <p class="count" id="count"></p>
@@ -319,7 +323,8 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
 
     <div class="section">
       <div class="lbl-row"><h3>Données de la visite</h3><button class="help" aria-expanded="false" aria-controls="h-data" aria-label="Aide : données">?</button></div><div class="tip" id="h-data" hidden><p>Les réserves ne sont enregistrées que dans ce navigateur, sur ce téléphone. Si tu vides les données du navigateur ou changes de téléphone, elles sont perdues.</p><p>« Sauvegarder » crée un fichier .json à garder sur le serveur de l'agence. « Importer » recharge ce fichier comme une visite supplémentaire, sans toucher aux autres.</p></div>
-      <p class="hint">Les réserves restent uniquement sur cet appareil. Sauvegarde-les avant de changer d'appareil ou de navigateur.</p>
+      <p class="hint">Les réserves restent uniquement sur cet appareil, dans la mémoire du navigateur. <strong id="backupInfo"></strong></p>
+      <div class="row"><button class="btn grow" id="openDataInfo">Comment sont gérées les données ?</button></div>
       <div class="exports">
         <button class="btn" id="backup">Sauvegarder la visite (.json)</button>
         <button class="btn" id="restore">Importer une sauvegarde (ajoutée comme nouvelle visite)</button>
@@ -355,7 +360,7 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
 <section class="sheet" id="guideSheet" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
   <div class="sheet-head">
     <button class="link" id="guideClose">Fermer</button>
-    <h2 id="guideTitle">Mode d'emploi</h2>
+    <h2 id="guideTitle">Mode d'emploi et données</h2>
   </div>
   <div class="sheet-body guide">
     <p>L'app sert à relever les réserves sur place, photo et commentaire, puis à produire un PV en PDF par entreprise.</p>
@@ -370,6 +375,46 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
       <li><strong>Sauvegarder</strong> : les données ne restent que sur ce téléphone. Pense à la sauvegarde .json dans « Visite ».</li>
     </ol>
     <p class="hint">Les boutons ? à côté des champs donnent des conseils sur chaque étape.</p>
+
+    <div class="section info" id="dataInfo">
+      <h3>Où sont enregistrées les données</h3>
+      <p>Les visites, photos et constats sont enregistrés <strong>uniquement sur ce téléphone</strong>, dans la mémoire du navigateur Chrome. Il n'y a ni serveur, ni compte, ni synchronisation : ni GitHub, ni le bureau, ni personne d'autre ne reçoit ces données.</p>
+      <p>Conséquence : une visite faite sur ce téléphone n'est visible que sur ce téléphone. Pour la transmettre à un collègue, utilise la sauvegarde .json, qu'il pourra importer.</p>
+      <p>Les photos prises depuis l'app sont enregistrées dans l'app. Selon le téléphone, elles peuvent ne pas apparaître dans la galerie.</p>
+
+      <h3>Ce qui efface les données</h3>
+      <p>Les données sont <strong>définitivement perdues</strong>, sans possibilité de récupération, dans les cas suivants :</p>
+      <ul>
+        <li>vider les données de navigation de Chrome en cochant « Cookies et données des sites » (vider seulement le cache ou l'historique ne devrait pas les toucher, mais par prudence, évite toute suppression) ;</li>
+        <li>supprimer les données du site dans les paramètres de Chrome, ou effacer les données de l'application Chrome dans les paramètres Android ;</li>
+        <li>désinstaller Chrome, réinitialiser ou changer de téléphone ;</li>
+        <li>utiliser l'app en navigation privée : tout disparaît à la fermeture de l'onglet.</li>
+      </ul>
+      <p>Si Android propose d'effacer les données en supprimant l'icône de l'écran d'accueil, refuse. L'app demande à Chrome de protéger ses données quand la mémoire du téléphone est pleine, mais ce n'est pas une garantie absolue.</p>
+
+      <h3>Bonnes pratiques</h3>
+      <ul>
+        <li>Après chaque visite, envoie les PDF et fais une <strong>sauvegarde .json</strong> (Visite, puis Données de la visite). Range-la dans le dossier du mandat sur le serveur du bureau.</li>
+        <li>Relis toujours le PDF avant de l'envoyer : l'app met en page, mais le contenu du document reste sous ta responsabilité.</li>
+        <li>Une fois les PDF archivés et les retouches contrôlées, tu peux supprimer la visite de l'app pour libérer de la place.</li>
+      </ul>
+
+      <h3>Confidentialité et sécurité</h3>
+      <ul>
+        <li>Toute personne qui a ton téléphone déverrouillé peut consulter les visites. Garde un verrouillage d'écran actif.</li>
+        <li>Respecte la sphère privée sur le chantier, surtout dans des logements occupés : évite de photographier des personnes, des documents ou des effets personnels.</li>
+        <li>La dictée passe par le clavier du téléphone. Selon ses réglages, la voix peut être traitée en ligne par l'éditeur du clavier (Google pour Gboard). L'app elle-même ne transmet rien.</li>
+        <li>« Envoyer » passe par ta propre application e-mail. L'app n'envoie rien par elle-même.</li>
+        <li>Le code de l'app est public sur GitHub : il ne contient aucune donnée de chantier, aucun mot de passe et aucune clé d'accès. Une fois chargée, l'app fonctionne sans connexion.</li>
+      </ul>
+
+      <h3>Mises à jour</h3>
+      <p>Quand le téléphone est connecté, l'app télécharge les nouvelles versions en arrière-plan. La nouvelle version s'affiche à l'ouverture suivante. Les visites enregistrées sont conservées.</p>
+
+      <h3>Statut de l'outil</h3>
+      <p>Outil interne développé pour Mentha Rosset Architectes, à partir de briques libres (jsPDF, polices Carlito et Barlow). Il est fourni tel quel, sans garantie : en cas de doute sur une donnée importante, garde une copie des photos par un autre moyen.</p>
+      <p class="hint">Version <span id="appVersion"></span></p>
+    </div>
   </div>
 </section>
 
@@ -460,6 +505,7 @@ async function load(){
     visits.forEach((v,i)=>{ visits[i]=Object.assign(defaultMeta(),v); });
     const cur = visits.find(v=>v.id===settings.currentVisitId) || visits.slice().sort((a,b)=>(b.created||0)-(a.created||0))[0];
     await switchVisit(cur.id);
+    if(!settings.introSeen) openGuide(false);
     return;
   }catch(e){ idb=null; $('#warn').classList.add('show'); }
   visits=[meta]; render();
@@ -655,7 +701,7 @@ function stopMic(){}
 function openVisit(){
   document.querySelectorAll('#visitSheet [data-k]').forEach(el=>{ el.value = meta[el.dataset.k]||''; });
   document.querySelectorAll('#visitSheet [data-s]').forEach(el=>{ el.value = settings[el.dataset.s]||''; });
-  renderCoList(); renderExports(); openSheet($('#visitSheet'));
+  renderCoList(); renderExports(); renderBackupInfo(); openSheet($('#visitSheet'));
 }
 let setTimer=null;
 document.querySelectorAll('#visitSheet [data-s]').forEach(el=>{
@@ -922,6 +968,7 @@ function fileBase(title, company, companyId){
 
 /* ---------- Sauvegarde / restauration ---------- */
 $('#backup').addEventListener('click',()=>{
+  meta.lastBackup=Date.now(); persistMeta(); renderBackupInfo();
   const data=JSON.stringify({app:'pv-reserves',version:1,meta,items});
   deliver(fileBase('Sauvegarde',null,undefined)+'.json', data);
 });
@@ -1054,8 +1101,23 @@ document.addEventListener('click',e=>{
   const t=document.getElementById(b.getAttribute('aria-controls')); if(!t) return;
   const open=t.hidden; t.hidden=!open; b.setAttribute('aria-expanded',String(open));
 });
-$('#openGuide').addEventListener('click',()=>openSheet($('#guideSheet')));
-$('#guideClose').addEventListener('click',()=>closeSheet($('#guideSheet')));
+const APP_VERSION='3 – 03.10.2026';
+$('#appVersion').textContent=APP_VERSION;
+function openGuide(toData){
+  openSheet($('#guideSheet'));
+  if(toData) requestAnimationFrame(()=>{ $('#guideSheet').scrollTop=$('#dataInfo').offsetTop-70; });
+}
+$('#openGuide').addEventListener('click',()=>openGuide(false));
+$('#openDataInfo').addEventListener('click',()=>openGuide(true));
+$('#guideClose').addEventListener('click',()=>{ closeSheet($('#guideSheet')); if(!settings.introSeen){ settings.introSeen=true; persistSettings(); } });
+function renderBackupInfo(){
+  const el=$('#backupInfo'); if(!el) return;
+  if(!meta.lastBackup){ el.textContent = items.length ? 'Cette visite n\'a encore jamais été sauvegardée.' : ''; return; }
+  const d=new Date(meta.lastBackup);
+  const t=d.toLocaleDateString('fr-CH')+' à '+d.toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});
+  const changed=items.some(i=>(i.updated||i.created||0)>meta.lastBackup);
+  el.textContent='Dernière sauvegarde : '+t+(changed?', modifiée depuis.':'.');
+}
 load();
 try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
