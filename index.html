@@ -322,13 +322,14 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
     </div>
 
     <div class="section">
-      <div class="lbl-row"><h3>Données de la visite</h3><button class="help" aria-expanded="false" aria-controls="h-data" aria-label="Aide : données">?</button></div><div class="tip" id="h-data" hidden><p>Les réserves ne sont enregistrées que dans ce navigateur, sur ce téléphone. Si tu vides les données du navigateur ou changes de téléphone, elles sont perdues.</p><p>« Sauvegarder » crée un fichier .json à garder sur le serveur de l'agence. « Importer » recharge ce fichier comme une visite supplémentaire, sans toucher aux autres.</p></div>
+      <div class="lbl-row"><h3>Données de la visite</h3><button class="help" aria-expanded="false" aria-controls="h-data" aria-label="Aide : données">?</button></div><div class="tip" id="h-data" hidden><p>Les réserves ne sont enregistrées que dans ce navigateur, sur ce téléphone. Si tu vides les données du navigateur ou changes de téléphone, elles sont perdues.</p><p>« Envoyer la sauvegarde » ouvre le menu de partage avec le fichier de la visite, photos comprises : e-mail à toi-même pour l'archiver, ou à un collègue qui reprend la visite. « Télécharger » l'enregistre sur le téléphone.</p><p>Selon le téléphone, le fichier envoyé peut porter l'extension .txt au lieu de .json : son contenu est le même, et l'import accepte les deux.</p><p>« Importer » ajoute la visite reçue comme visite supplémentaire, sans toucher aux autres.</p></div>
       <p class="hint">Les réserves restent uniquement sur cet appareil, dans la mémoire du navigateur. <strong id="backupInfo"></strong></p>
       <div class="row"><button class="btn grow" id="openDataInfo">Comment sont gérées les données ?</button></div>
       <div class="exports">
-        <button class="btn" id="backup">Sauvegarder la visite (.json)</button>
+        <button class="btn primary" id="backupShare">Envoyer la sauvegarde</button>
+        <button class="btn" id="backup">Télécharger la sauvegarde</button>
         <button class="btn" id="restore">Importer une sauvegarde (ajoutée comme nouvelle visite)</button>
-        <input type="file" accept=".json,application/json" id="restoreInput" class="sr" tabindex="-1">
+        <input type="file" accept=".json,.txt,application/json,text/plain" id="restoreInput" class="sr" tabindex="-1">
         <button class="btn danger" id="wipe">Supprimer cette visite</button>
       </div>
     </div>
@@ -379,7 +380,8 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
     <div class="section info" id="dataInfo">
       <h3>Où sont enregistrées les données</h3>
       <p>Les visites, photos et constats sont enregistrés <strong>uniquement sur ce téléphone</strong>, dans la mémoire du navigateur Chrome. Il n'y a ni serveur, ni compte, ni synchronisation : ni GitHub, ni le bureau, ni personne d'autre ne reçoit ces données.</p>
-      <p>Conséquence : une visite faite sur ce téléphone n'est visible que sur ce téléphone. Pour la transmettre à un collègue, utilise la sauvegarde .json, qu'il pourra importer.</p>
+      <p>Conséquence : une visite faite sur ce téléphone n'est visible que sur ce téléphone. Pour la transmettre à un collègue, utilise « Envoyer la sauvegarde » (Visite, puis Données de la visite). Le collègue enregistre le fichier reçu sur son téléphone, puis l'ajoute avec « Importer une sauvegarde ».</p>
+      <p>La sauvegarde contient les photos et peut donc être lourde. L'app affiche sa taille au moment de l'envoi. Si ta messagerie refuse le fichier, trop volumineux, passe par un service de partage de fichiers validé par le bureau.</p>
       <p>Les photos prises depuis l'app sont enregistrées dans l'app. Selon le téléphone, elles peuvent ne pas apparaître dans la galerie.</p>
 
       <h3>Ce qui efface les données</h3>
@@ -394,7 +396,7 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
 
       <h3>Bonnes pratiques</h3>
       <ul>
-        <li>Après chaque visite, envoie les PDF et fais une <strong>sauvegarde .json</strong> (Visite, puis Données de la visite). Range-la dans le dossier du mandat sur le serveur du bureau.</li>
+        <li>Après chaque visite, envoie les PDF puis la <strong>sauvegarde</strong> (Visite, puis Données de la visite, puis « Envoyer la sauvegarde »), par exemple à ta propre adresse e-mail. Range-la ensuite dans le dossier du mandat sur le serveur du bureau.</li>
         <li>Relis toujours le PDF avant de l'envoyer : l'app met en page, mais le contenu du document reste sous ta responsabilité.</li>
         <li>Une fois les PDF archivés et les retouches contrôlées, tu peux supprimer la visite de l'app pour libérer de la place.</li>
       </ul>
@@ -967,10 +969,27 @@ function fileBase(title, company, companyId){
 }
 
 /* ---------- Sauvegarde / restauration ---------- */
+function backupData(){ return JSON.stringify({app:'pv-reserves',version:1,meta,items}); }
+function sizeLabel(n){ return (n/1048576).toFixed(1).replace('.',',')+' Mo'; }
+function markBackup(){ meta.lastBackup=Date.now(); persistMeta(); renderBackupInfo(); }
 $('#backup').addEventListener('click',()=>{
-  meta.lastBackup=Date.now(); persistMeta(); renderBackupInfo();
-  const data=JSON.stringify({app:'pv-reserves',version:1,meta,items});
-  deliver(fileBase('Sauvegarde',null,undefined)+'.json', data);
+  markBackup();
+  deliver(fileBase('Sauvegarde',null,undefined)+'.json', backupData());
+});
+$('#backupShare').addEventListener('click',async()=>{
+  const data=backupData(), base=fileBase('Sauvegarde',null,undefined);
+  const size=sizeLabel(new Blob([data]).size), title='Sauvegarde – '+visitName(meta);
+  // Chrome n'autorise pas toujours le partage des fichiers .json : repli sur .txt (même contenu)
+  for(const [n,t] of [[base+'.json','application/json'],[base+'.txt','text/plain']]){
+    let f; try{ f=new File([data],n,{type:t}); }catch(e){ break; }
+    if(!(navigator.canShare && navigator.canShare({files:[f]}))) continue;
+    try{ await navigator.share({files:[f],title,text:title}); markBackup(); toast('Sauvegarde transmise ('+size+')'); }
+    catch(e){ if(!(e && e.name==='AbortError')) toast("L'envoi n'a pas abouti. Utilise « Télécharger la sauvegarde »."); }
+    return;
+  }
+  markBackup();
+  toast("L'envoi direct n'est pas possible ici : la sauvegarde est téléchargée ("+size+").");
+  deliver(base+'.json', data);
 });
 $('#restore').addEventListener('click',()=>$('#restoreInput').click());
 $('#restoreInput').addEventListener('change',async e=>{
@@ -982,7 +1001,7 @@ $('#restoreInput').addEventListener('change',async e=>{
     meta=v; await persistMeta(); settings.currentVisitId=v.id; await persistSettings();
     items=d.items.map(it=>Object.assign({},it,{id:uid()}));
     for(const it of items) await persistItem(it);
-    render(); openVisit(); toast('Visite importée ('+items.length+' réserves)');
+    render(); openVisit(); toast('Visite importée ('+items.length+' réserve'+(items.length>1?'s':'')+')');
   }catch(err){ toast("Ce fichier n'est pas une sauvegarde de cette app."); }
 });
 $('#wipe').addEventListener('click',e=>twoTap(e.currentTarget,'Confirmer : supprimer la visite et ses réserves',async()=>{
@@ -1101,7 +1120,7 @@ document.addEventListener('click',e=>{
   const t=document.getElementById(b.getAttribute('aria-controls')); if(!t) return;
   const open=t.hidden; t.hidden=!open; b.setAttribute('aria-expanded',String(open));
 });
-const APP_VERSION='3 – 03.10.2026';
+const APP_VERSION='4 – 03.10.2026';
 $('#appVersion').textContent=APP_VERSION;
 function openGuide(toData){
   openSheet($('#guideSheet'));
