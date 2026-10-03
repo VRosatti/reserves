@@ -39,6 +39,7 @@ window.PV_ASSETS={fontReg:"AAEAAAARAQAABAAQR0RFRg/ZEEsAAVUUAAAAgkdQT1O6i9XXAAFVm
   --ok:#62BF89; --danger:#F08A80;
 }
 *,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none !important}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
   font:16px/1.45 "Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
@@ -205,7 +206,14 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
     <h2 id="formTitle">Nouvelle réserve</h2>
   </div>
   <div class="sheet-body">
-    <div class="lbl-row"><span class="lbl">Photo</span><button class="help" aria-expanded="false" aria-controls="h-photo" aria-label="Aide : photo">?</button></div><div class="tip" id="h-photo" hidden><p>Règle l'appareil photo du téléphone au format 3:4, pas « Plein écran » : les photos seront bien plus grandes dans le PDF.</p><p>Cadre le défaut au centre, avec assez de contexte pour qu'on reconnaisse l'endroit.</p><p>« Annoter la photo » permet d'ajouter une flèche ou d'entourer le défaut au doigt.</p><p>« Galerie » sert à reprendre une photo déjà prise.</p></div>
+    <div class="field" style="margin-top:4px">
+      <div class="lbl-row"><label for="fLocal">Local</label><button class="help" aria-expanded="false" aria-controls="h-local" aria-label="Aide : local">?</button></div><div class="tip" id="h-local" hidden><p>Les réserves sont regroupées par local dans la liste et dans le PDF. Écris toujours un local de la même façon, sinon il apparaîtra deux fois.</p><p>Le local reste rempli pour les réserves suivantes, jusqu'à ce que tu le changes. Les boutons sous le champ reprennent les derniers locaux saisis.</p></div>
+      <input type="text" id="fLocal" list="localList" placeholder="Ex. Séjour 2.03, Cage d'escalier B" autocomplete="off">
+      <datalist id="localList"></datalist>
+      <div class="chips small" id="recentLocals" style="margin-top:8px"></div>
+    </div>
+
+    <div class="lbl-row" style="margin-top:18px"><span class="lbl">Photo</span><button class="help" aria-expanded="false" aria-controls="h-photo" aria-label="Aide : photo">?</button></div><div class="tip" id="h-photo" hidden><p>Règle l'appareil photo du téléphone au format 3:4, pas « Plein écran » : les photos seront bien plus grandes dans le PDF.</p><p>Cadre le défaut au centre, avec assez de contexte pour qu'on reconnaisse l'endroit.</p><p>« Annoter la photo » permet d'ajouter une flèche ou d'entourer le défaut au doigt.</p><p>« Galerie » sert à reprendre une photo déjà prise.</p></div>
     <div class="photo" id="photoBox"><div class="ph">Pas encore de photo</div></div>
     <div class="row">
       <button class="btn primary grow" id="takePhoto">Prendre une photo</button>
@@ -219,15 +227,7 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
     <div class="field">
       <div class="lbl-row"><label for="fText">Constat</label><button class="help" aria-expanded="false" aria-controls="h-text" aria-label="Aide : constat">?</button></div><div class="tip" id="h-text" hidden><p>Touche le micro du clavier et parle normalement. Tu peux corriger le texte au doigt ensuite.</p><p>Si rien ne s'écrit, la langue de dictée du clavier doit être le français (France) : le français (Suisse) ne fonctionne pas.</p><p>Formule utile : le défaut, puis l'action attendue. Par exemple : « Joint ouvert entre deux lames, reprendre le joint. »</p></div>
       <textarea id="fText" placeholder="Touche le micro de ton clavier pour dicter."></textarea>
-      <div class="row" id="micRow" hidden><button class="btn mic" id="micBtn">Dicter ici</button></div>
       <p class="hint" id="micHint">Dicte avec le micro du clavier. Si rien ne s'écrit, vérifie que la langue de dictée du clavier est le français (France).</p>
-    </div>
-
-    <div class="field">
-      <div class="lbl-row"><label for="fLocal">Local</label><button class="help" aria-expanded="false" aria-controls="h-local" aria-label="Aide : local">?</button></div><div class="tip" id="h-local" hidden><p>Les réserves sont regroupées par local dans la liste et dans le PDF. Écris toujours un local de la même façon, sinon il apparaîtra deux fois.</p><p>Le dernier local reste rempli pour la réserve suivante. Les boutons sous le champ reprennent les derniers locaux saisis.</p></div>
-      <input type="text" id="fLocal" list="localList" placeholder="Ex. Séjour 2.03, Cage d'escalier B" autocomplete="off">
-      <datalist id="localList"></datalist>
-      <div class="chips small" id="recentLocals" style="margin-top:8px"></div>
     </div>
 
     <div class="field">
@@ -287,8 +287,8 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
   <div class="sheet-body">
     <div class="lbl-row" style="margin-top:6px"><h3>En-tête du PV</h3><button class="help" aria-expanded="false" aria-controls="h-head" aria-label="Aide : en-tête">?</button></div><div class="tip" id="h-head" hidden><p>Ces informations remplissent la page de garde et son cartouche, comme sur les plans du bureau. Les champs laissés vides n'y figurent pas.</p><p>L'adresse tient sur deux lignes : rue, puis NPA et localité.</p><p>Tout est enregistré automatiquement, il n'y a pas de bouton de validation.</p></div>
     <div class="field"><label for="vTitle">Titre du document</label><input type="text" id="vTitle" data-k="docTitle" placeholder="Cahier de retouches"></div>
-    <div class="field"><label for="vSector">Secteur ou étage</label><input type="text" id="vSector" data-k="sector" placeholder="Optionnel, ex. ETAGE 2"></div>
     <div class="field"><label for="vProject">Code du mandat</label><input type="text" id="vProject" data-k="project" placeholder="Ex. GIR-R"></div>
+    <div class="field"><label for="vSector">Secteur ou étage</label><input type="text" id="vSector" data-k="sector" placeholder="Optionnel, ex. ETAGE 2"></div>
     <div class="field"><label for="vDesc">Description du mandat</label><input type="text" id="vDesc" data-k="desc" placeholder="Ex. Relevé d'une ferme"></div>
     <div class="field"><label for="vAddress">Adresse du mandat</label><textarea id="vAddress" data-k="address" style="min-height:70px" placeholder="Rue et numéro&#10;NPA Localité"></textarea></div>
     <div class="field"><label for="vParcels">Parcelle(s) N°</label><input type="text" id="vParcels" data-k="parcels" placeholder="Optionnel"></div>
@@ -500,7 +500,7 @@ function render(){
     const k = (it.local||'').trim() || 'Local non précisé';
     if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(it);
   });
-  [...groups.keys()].sort(byNatural).forEach(k=>{
+  [...groups.keys()].forEach(k=>{
     const sec = document.createElement('section'); sec.className='group';
     const h = document.createElement('h2'); h.textContent=k; sec.appendChild(h);
     const ul = document.createElement('ul');
@@ -628,7 +628,7 @@ async function saveItem(next){
   if(editing){ it=editing; }
   else { meta.counter=(meta.counter||0)+1; it={id:uid(),num:meta.counter,created:Date.now()}; items.push(it); }
   Object.assign(it,{text,local,companyId:fCompany,status:fStatus,photo:draft.photo,w:draft.w,h:draft.h,marks:draft.marks||[],photoOut:draft.out||null,updated:Date.now()});
-  meta.lastLocal=local; meta.lastCompany=fCompany;
+  if(!editing){ meta.lastLocal=local; meta.lastCompany=fCompany; }
   await persistItem(it); await persistMeta(); render();
   if(next){
     toast('R-'+pad(it.num)+' enregistrée');
@@ -649,22 +649,7 @@ $('#deleteItem').addEventListener('click',e=>twoTap(e.currentTarget,'Confirmer l
 $('#newItem').addEventListener('click',()=>openForm(null));
 
 /* ---------- Dictée intégrée (bonus, selon navigateur) ---------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec=null;
-let framed=true; try{ framed = window.self!==window.top; }catch(e){}
-/* bouton de dictée intégrée volontairement masqué : le micro du clavier est la méthode documentée */
-function stopMic(){ if(rec){ try{rec.stop();}catch(e){} } }
-$('#micBtn').addEventListener('click',()=>{
-  if(rec){ stopMic(); return; }
-  const ta=$('#fText'); const base = ta.value ? ta.value.replace(/\s*$/,' ') : '';
-  try{
-    rec=new SR(); rec.lang='fr-FR'; rec.continuous=true; rec.interimResults=true;
-    rec.onresult=e=>{ let t=''; for(let i=0;i<e.results.length;i++) t+=e.results[i][0].transcript; ta.value=base+t; };
-    rec.onerror=e=>{ $('#micHint').textContent="La dictée intégrée ne fonctionne pas ici ("+e.error+"). Utilise le micro du clavier."; };
-    rec.onend=()=>{ rec=null; $('#micBtn').classList.remove('on'); $('#micBtn').textContent='Dicter ici'; };
-    rec.start(); $('#micBtn').classList.add('on'); $('#micBtn').textContent='Arrêter la dictée';
-  }catch(err){ rec=null; $('#micHint').textContent="La dictée intégrée ne fonctionne pas ici. Utilise le micro du clavier."; }
-});
+function stopMic(){}
 
 /* ---------- Visite ---------- */
 function openVisit(){
@@ -831,7 +816,7 @@ async function exportPdf(companyId, mode){
     if(!groups.has(k)) groups.set(k,[]); groups.get(k).push(it);
   });
   const pageCont = key => { doc.addPage(); y=TOP+4; F('bold',11,grey); doc.text(pdfText(key+' (suite)'),M,y); y+=8; };
-  for(const key of [...groups.keys()].sort(byNatural)){
+  for(const key of groups.keys()){
     const list=groups.get(key);
     doc.addPage(); y=TOP+6;
     F('bold',18); fit(key,CW).forEach(l=>{ doc.text(l,M,y); y+=8; });
