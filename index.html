@@ -322,7 +322,7 @@ input:focus,textarea:focus{border-color:var(--signal);outline:none}
     </div>
 
     <div class="section">
-      <div class="lbl-row"><h3>Données de la visite</h3><button class="help" aria-expanded="false" aria-controls="h-data" aria-label="Aide : données">?</button></div><div class="tip" id="h-data" hidden><p>Les réserves ne sont enregistrées que dans ce navigateur, sur ce téléphone. Si tu vides les données du navigateur ou changes de téléphone, elles sont perdues.</p><p>« Envoyer la sauvegarde » ouvre le menu de partage avec le fichier de la visite, photos comprises : e-mail à toi-même pour l'archiver, ou à un collègue qui reprend la visite. « Télécharger » l'enregistre sur le téléphone.</p><p>Selon le téléphone, le fichier envoyé peut porter l'extension .txt au lieu de .json : son contenu est le même, et l'import accepte les deux.</p><p>« Importer » ajoute la visite reçue comme visite supplémentaire, sans toucher aux autres.</p></div>
+      <div class="lbl-row"><h3>Données de la visite</h3><button class="help" aria-expanded="false" aria-controls="h-data" aria-label="Aide : données">?</button></div><div class="tip" id="h-data" hidden><p>Les réserves ne sont enregistrées que dans ce navigateur, sur ce téléphone. Si tu vides les données du navigateur ou changes de téléphone, elles sont perdues.</p><p>« Envoyer la sauvegarde » ouvre le menu de partage avec le fichier de la visite, photos comprises : e-mail à toi-même pour l'archiver, ou à un collègue qui reprend la visite. « Télécharger » l'enregistre sur le téléphone.</p><p>Le fichier envoyé porte l'extension .txt, car Chrome n'autorise pas l'envoi de fichiers .json. Son contenu est identique à celui de la sauvegarde téléchargée, et l'import accepte les deux formats. Ne le renomme pas et ne l'ouvre pas pour le modifier.</p><p>« Importer » ajoute la visite reçue comme visite supplémentaire, sans toucher aux autres.</p></div>
       <p class="hint">Les réserves restent uniquement sur cet appareil, dans la mémoire du navigateur. <strong id="backupInfo"></strong></p>
       <div class="row"><button class="btn grow" id="openDataInfo">Comment sont gérées les données ?</button></div>
       <div class="exports">
@@ -979,8 +979,9 @@ $('#backup').addEventListener('click',()=>{
 $('#backupShare').addEventListener('click',async()=>{
   const data=backupData(), base=fileBase('Sauvegarde',null,undefined);
   const size=sizeLabel(new Blob([data]).size), title='Sauvegarde – '+visitName(meta);
-  // Chrome n'autorise pas toujours le partage des fichiers .json : repli sur .txt (même contenu)
-  for(const [n,t] of [[base+'.json','application/json'],[base+'.txt','text/plain']]){
+  // Chrome accepte le .json à la vérification mais le refuse à l'envoi (NotAllowedError) :
+  // la sauvegarde est donc envoyée en .txt, au contenu identique ; l'import accepte les deux.
+  for(const [n,t] of [[base+'.txt','text/plain']]){
     let f; try{ f=new File([data],n,{type:t}); }catch(e){ break; }
     if(!(navigator.canShare && navigator.canShare({files:[f]}))) continue;
     try{ await navigator.share({files:[f]}); markBackup(); toast('Sauvegarde transmise ('+size+')'); }
@@ -1123,7 +1124,7 @@ document.addEventListener('click',e=>{
   const t=document.getElementById(b.getAttribute('aria-controls')); if(!t) return;
   const open=t.hidden; t.hidden=!open; b.setAttribute('aria-expanded',String(open));
 });
-const APP_VERSION='5 – 03.10.2026';
+const APP_VERSION='6 – 03.10.2026';
 $('#appVersion').textContent=APP_VERSION;
 function openGuide(toData){
   openSheet($('#guideSheet'));

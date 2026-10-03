@@ -1,6 +1,6 @@
 /* Fonctionnement hors ligne : les fichiers de l'app sont gardés en cache sur le téléphone.
    Après une mise à jour du dépôt, augmenter le numéro de version ci-dessous. */
-const VERSION = 'reserves-v5';
+const VERSION = 'reserves-v6';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './vendor/jspdf.umd.min.js',
   './fonts/Barlow-Regular.woff2', './fonts/Barlow-Medium.woff2', './fonts/Barlow-SemiBold.woff2',
