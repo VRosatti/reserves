@@ -517,7 +517,7 @@ function saveMetaSoon(){ clearTimeout(metaTimer); metaTimer=setTimeout(persistMe
 
 /* ---------- Utilitaires UI ---------- */
 let toastTimer=null;
-function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2600); }
+function toast(msg,ms){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),ms||2600); }
 function twoTap(btn, confirmLabel, fn){
   if(btn.dataset.armed){ clearTimeout(+btn.dataset.timer); delete btn.dataset.armed; btn.textContent=btn.dataset.orig; btn.classList.remove('armed'); fn(); return; }
   btn.dataset.orig = btn.textContent; btn.dataset.armed='1'; btn.textContent=confirmLabel; btn.classList.add('armed');
@@ -983,8 +983,11 @@ $('#backupShare').addEventListener('click',async()=>{
   for(const [n,t] of [[base+'.json','application/json'],[base+'.txt','text/plain']]){
     let f; try{ f=new File([data],n,{type:t}); }catch(e){ break; }
     if(!(navigator.canShare && navigator.canShare({files:[f]}))) continue;
-    try{ await navigator.share({files:[f],title,text:title}); markBackup(); toast('Sauvegarde transmise ('+size+')'); }
-    catch(e){ if(!(e && e.name==='AbortError')) toast("L'envoi n'a pas abouti. Utilise « Télécharger la sauvegarde »."); }
+    try{ await navigator.share({files:[f]}); markBackup(); toast('Sauvegarde transmise ('+size+')'); }
+    catch(e){
+      if(e && e.name==='AbortError') return;
+      toast("L'envoi n'a pas abouti. Détail technique : "+(e&&e.name||'?')+' – '+(e&&e.message||'')+' – fichier '+n.split('.').pop()+', '+size+'.',12000);
+    }
     return;
   }
   markBackup();
@@ -1120,7 +1123,7 @@ document.addEventListener('click',e=>{
   const t=document.getElementById(b.getAttribute('aria-controls')); if(!t) return;
   const open=t.hidden; t.hidden=!open; b.setAttribute('aria-expanded',String(open));
 });
-const APP_VERSION='4 – 03.10.2026';
+const APP_VERSION='5 – 03.10.2026';
 $('#appVersion').textContent=APP_VERSION;
 function openGuide(toData){
   openSheet($('#guideSheet'));
