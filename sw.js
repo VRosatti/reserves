@@ -1,6 +1,6 @@
 /* Fonctionnement hors ligne : les fichiers de l'app sont gardés en cache sur le téléphone.
    Après une mise à jour du dépôt, augmenter le numéro de version ci-dessous. */
-const VERSION = 'reserves-v6';
+const VERSION = 'reserves-v7';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './vendor/jspdf.umd.min.js',
   './fonts/Barlow-Regular.woff2', './fonts/Barlow-Medium.woff2', './fonts/Barlow-SemiBold.woff2',
@@ -13,7 +13,7 @@ self.addEventListener('install', e => {
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
-    .then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k))))
+    .then(keys => Promise.all(keys.filter(k => k.startsWith('reserves-') && k !== VERSION).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 /* Réponse depuis le cache (rapide, hors ligne), puis mise à jour du cache en arrière-plan. */
